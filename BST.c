@@ -76,13 +76,13 @@ int iBST(pBST p, void *new, int (*cmp)(void *p1, void *p2)) {
         p->size = 1;
     } else {
         while (stop_looping == 0) {
-            p->size++;
             if (cmp(current_node->data, new_node->data) > 0) {
                 if (current_node->left != NULL) {
                     current_node = current_node->left;
                 } else {
                     stop_looping = 1;
                     current_node->left = new_node;
+                    p->size++;
                 }
             } else {
                 if (current_node->right != NULL) {
@@ -90,6 +90,7 @@ int iBST(pBST p, void *new, int (*cmp)(void *p1, void *p2)) {
                 } else {
                     stop_looping = 1;
                     current_node->right = new_node;
+                    p->size++;
                 }
             }
         }
@@ -201,7 +202,7 @@ int rBST(pBST p, void *item, int (*cmp)(void *p1, void *p2)) {
 /* Busca em uma BST */
 int sBST(pBST p, void *item, int (*cmp)(void *p1, void *p2)) {
     if (!p || !item || !cmp) return FAIL;
-    return sBSTNode(p->root, item, cmp);
+     return sBSTNode(p->root, item, cmp);
 }
 
 /* Verificação de BST vazia */
@@ -260,11 +261,11 @@ void dBSTNode(NODE *node) {
 }
 
 int sBSTNode(NODE *node, void *item, int (*cmp)(void *p1, void *p2)) {
-    if (!node) return FALSE;
+    if (!node) return FAIL;
 
     int exist = cmp(node->data, item);
 
-    if (exist == 0) return TRUE;
+    if (exist == 0) return SUCCESS;
 
     if (exist > 0) {
         return sBSTNode(node->left, item, cmp);

@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
     printf("\nBuscar elemento %d ", elemento_busca);
 
-    if (sBST(pBST, &elemento_busca, comparaDados) == TRUE) {
+    if (sBST(pBST, &elemento_busca, comparaDados) == SUCCESS) {
         printf("\nEncontrou elemento %d ", elemento_busca);
     }else {
         printf("\nNão encontrou elemento %d", elemento_busca);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 
     printf("\nBuscar elemento %d ", elemento_busca);
 
-    if (sBST(pBST, &elemento_busca, comparaDados) == TRUE) {
+    if (sBST(pBST, &elemento_busca, comparaDados) == SUCCESS) {
         printf("\nEncontrou elemento %d ", elemento_busca);
     }else {
         printf("\nNão encontrou elemento %d", elemento_busca);
