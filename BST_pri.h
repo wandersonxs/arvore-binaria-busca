@@ -19,6 +19,7 @@ typedef struct BST {
 } BST;
 
 void dBSTNode(NODE* node);
+int sBSTNode(NODE *node, void *item, int (*cmp)(void *p1, void *p2));
 void orderPathNode(NODE *node, void (*process)(void *p));
 void preorderNode(NODE *node, void (*process)(void *p));
 void postorderPathNode(NODE *node, void (*process)(void *p));

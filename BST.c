@@ -2,17 +2,11 @@
 
 /* Criação de uma BST */
 int cBST(ppBST pp, int sizedata) {
-    if (sizedata <= 0) {
-        printf("Passe sizedata maior que 0");
-        return FAIL;
-    }
+    if (sizedata <= 0) return FAIL;
 
     pBST p = malloc(sizeof(BST));
 
-    if (!p) {
-        printf("Erro ao criar a árvore.");
-        return FAIL;
-    }
+    if (!p) return FAIL;
 
     p->sizedata = sizedata;
     p->root = NULL;
@@ -40,32 +34,25 @@ int dBST(ppBST pp) {
     return SUCCESS;
 }
 
-/*
- * Limpeza de uma BST
- */
+/* Limpeza de uma BST */
 int cleanBST(pBST p) {
     if (!p) return FAIL;
 
     dBSTNode(p->root);
-
     p->root = NULL;
     p->size = 0;
 
     return SUCCESS;
 }
 
-/* Inserção em uma BST*/
+/* Inserção em uma BST */
 int iBST(pBST p, void *new, int (*cmp)(void *p1, void *p2)) {
-    if (!p || !new || !cmp) {
-        return FAIL;
-    }
+    if (!p || !new || !cmp) return FAIL;
 
     // Alocar memória para o nó
     NODE *new_node = malloc(sizeof(NODE));
 
-    if (!new_node) {
-        return FAIL;
-    }
+    if (!new_node) return FAIL;
 
     // Alocar memória para a área de dados genérica
     new_node->data = malloc(p->sizedata);
@@ -111,43 +98,116 @@ int iBST(pBST p, void *new, int (*cmp)(void *p1, void *p2)) {
 }
 
 int rBST(pBST p, void *item, int (*cmp)(void *p1, void *p2)) {
-    return SUCCESS;
+    if (!p || !item || !cmp) return FAIL;
+
+    NODE *node_father = NULL;
+    NODE *node_current = p->root;
+
+    // Localizar o nó a ser removido
+    while (node_current != NULL) {
+        int result = cmp(item, node_current->data);
+        if (result == 0) {
+            break;
+        } else if (result < 0) {
+            node_father = node_current;
+            node_current = node_current->left;
+        } else { // result > 0
+            node_father = node_current;
+            node_current = node_current->right;
+        }
+    }
+
+    if (!node_current) return FAIL;
+
+    // Verificar filhos do nó localizado
+    int has_node_left  = (node_current->left  != NULL) ? TRUE : FALSE;
+    int has_node_right = (node_current->right != NULL) ? TRUE : FALSE;
+
+    // CASO 1: nó sem filhos (folha)
+    if (!has_node_left && !has_node_right) {
+        if (!node_father) {
+            // Nó folha é a raiz
+            p->root = NULL;
+        } else {
+            if (node_father->left == node_current) {
+                node_father->left = NULL;
+            } else {
+                node_father->right = NULL;
+            }
+        }
+        free(node_current->data);
+        free(node_current);
+        p->size--;
+        return SUCCESS;
+    }
+    // CASO 2: nó com apenas UM filho
+    else if (has_node_left != has_node_right) { // XOR: exatamente 1 filho
+        NODE *node_unique_child = NULL;
+
+        if (has_node_left == TRUE) {
+            node_unique_child = node_current->left;
+        } else {
+            node_unique_child = node_current->right;
+        }
+
+        if (!node_father) {
+            // Nó com 1 filho é a raiz
+            p->root = node_unique_child;
+        } else {
+            if (node_father->left == node_current) {
+                node_father->left = node_unique_child;
+            } else {
+                node_father->right = node_unique_child;
+            }
+        }
+
+        free(node_current->data);
+        free(node_current);
+        p->size--;
+        return SUCCESS;
+    }
+    // CASO 3: nó com DOIS filhos
+    else {
+        // Estratégia: usar o SUCESSOR (menor nó da subárvore direita)
+        NODE *node_sucessor_father = node_current;
+        NODE *node_successor = node_current->right;
+
+        // Descer até o mais à esquerda da subárvore direita
+        while (node_successor->left != NULL) {
+            node_sucessor_father = node_successor;
+            node_successor = node_successor->left;
+        }
+
+        // Copiar o dado do sucessor para o nó atual
+        memcpy(node_current->data, node_successor->data, p->sizedata);
+
+        // Agora remover fisicamente o sucessor: ele terá no máximo um filho (à direita)
+        NODE *node_sucessor_child = node_successor->right; // pode ser NULL
+
+        // Ajustar ponteiro no pai do sucessor
+        if (node_sucessor_father->left == node_successor) {
+            node_sucessor_father->left = node_sucessor_child;
+        } else {
+            node_sucessor_father->right = node_sucessor_child;
+        }
+
+        free(node_successor->data);
+        free(node_successor);
+        p->size--;
+        return SUCCESS;
+    }
 }
 
-int sBSTNode(NODE *node, void *item, int (*cmp)(void *p1, void *p2)) {
-    if (!node) return FALSE;
-
-    int exist = cmp(node->data, item);
-
-    if (exist == 0) {
-        return TRUE;
-    }
-    if (exist > 0) {
-        return sBSTNode(node->left, item, cmp);
-    }else {
-       return sBSTNode(node->right,item,cmp);
-    }
-}
-
-/*
- * Busca em uma BST: A função int sBST(pBST p, void *item, int (* cmp)(void *p1, void *p2))
- * deve buscar um elemento na BST e retornar um código indicando se o elemento foi encontrado ou não.
- *
- * O parâmetro item representa o elemento a ser buscado, enquanto cmp é a função de comparação utilizada
- * para comparar elementos na árvore.
- */
-
+/* Busca em uma BST */
 int sBST(pBST p, void *item, int (*cmp)(void *p1, void *p2)) {
-    if (!p || !item || !cmp ) return FAIL;
-
+    if (!p || !item || !cmp) return FAIL;
     return sBSTNode(p->root, item, cmp);
 }
 
 /* Verificação de BST vazia */
 int emptyBST(pBST p) {
-    return p->size == 0 ? 0 : 1;
+    return p->size == 0 ? FALSE : TRUE;
 }
-
 
 /* Percurso In-order (Esquerda → Raiz → Direita) */
 int orderPath(pBST pa, void (*process)(void *p)) {
@@ -191,11 +251,24 @@ void postorderPathNode(NODE *node, void (*process)(void *p)) {
     process(node->data);
 }
 
-
 void dBSTNode(NODE *node) {
     if (!node) return;
     dBSTNode(node->left);
     dBSTNode(node->right);
     free(node->data);
     free(node);
+}
+
+int sBSTNode(NODE *node, void *item, int (*cmp)(void *p1, void *p2)) {
+    if (!node) return FALSE;
+
+    int exist = cmp(node->data, item);
+
+    if (exist == 0) return TRUE;
+
+    if (exist > 0) {
+        return sBSTNode(node->left, item, cmp);
+    } else {
+        return sBSTNode(node->right, item, cmp);
+    }
 }

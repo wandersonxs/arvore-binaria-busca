@@ -40,16 +40,28 @@ int main(int argc, char *argv[]) {
     postorderPath(pBST, process);
 
     // Buscar elemento na raiz = 30
-    int elemento_raiz = 65;
+    int elemento_busca = 65;
 
-    printf("\nBuscar elemento %d ", elemento_raiz);
+    printf("\nBuscar elemento %d ", elemento_busca);
 
-    if (sBST(pBST, &elemento_raiz, comparaDados) == TRUE) {
-        printf("\nEncontrou elemento %d ", elemento_raiz);
+    if (sBST(pBST, &elemento_busca, comparaDados) == TRUE) {
+        printf("\nEncontrou elemento %d ", elemento_busca);
     }else {
-        printf("\nNão encontrou elemento %d", elemento_raiz);
+        printf("\nNão encontrou elemento %d", elemento_busca);
     }
 
+    printf("\nRemover elemento %d ", elemento_busca);
+
+    // remove a raiz da árvore
+    rBST(pBST, &elemento_busca , comparaDados);
+
+    printf("\nBuscar elemento %d ", elemento_busca);
+
+    if (sBST(pBST, &elemento_busca, comparaDados) == TRUE) {
+        printf("\nEncontrou elemento %d ", elemento_busca);
+    }else {
+        printf("\nNão encontrou elemento %d", elemento_busca);
+    }
     // Limpar a árvore
     printf("\nLimpa a árvore");
     cleanBST(pBST);
